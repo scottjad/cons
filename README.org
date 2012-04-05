@@ -30,7 +30,7 @@
 *** Replay last item played
     : cons last
 *** Consume next new item whatever it happens to be
-    : cons next --new
+    : cons next
 *** Remove item
     : cons rm 0
 *** Remove all consumed non-sticky items
@@ -38,13 +38,14 @@
 *** Mark item for keepin'
     : cons keep 0
 *** Add item to queue for later
-    : cons --queue --url 
+    : cons --queue --url http://www.youtube.com/watch?v=0dx-7vwJJrc
 *** Retry failed/queued downloads
     : cons --retry
 *** Add item from file
     : cons --mv ~/video.mp4
 *** Increase playback speed
     : export CONS_PLAYBACK_SPEED=1.61
+
 ** Notes
 *** Read and keep flags
     In the file listing there are flags to designate various states. "*" means
