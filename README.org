@@ -1,5 +1,5 @@
 * Cons
-  makes consuming so fast and easy that one might consume too much
+  makes consuming media so fast and easy that one might consume too much
 
 ** Overview
    Cons is a command line media library primarily for consuming temporary
@@ -20,11 +20,10 @@
    : $EDITOR ~/.cons_config.rb # setup your apps
 
 ** Usage
-*** Show library
-    : cons
+   - Show library :: cons
 *** Add item from url
     : cons --url http://www.youtube.com/watch?v=1xVw6PsSinI
-*** Play item
+*** Play item 
     cons 0
 *** Replay last item played
     cons last
@@ -59,7 +58,7 @@
     If you use rbrito's youtube-dl fork (use-other-downloaders branch) then you
     can use aria2c with 5 (up to 16) concurrent connections.
 *** Stumpwm interface
-    http://github.com/scottjad/cons-stumpwm
+    [[http://github.com/scottjad/cons-stumpwm]]
 
 ** FAQ
 *** Why aren't you using xdg-open/gnome-open?
