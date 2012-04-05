@@ -18,6 +18,7 @@
    : ln -s ~/src/cons/cons ~/bin/cons # or add to PATH
    : cp ~/src/cons/config.default ~/.cons_config.rb
    : $EDITOR ~/.cons_config.rb # setup your apps
+   : mkdir ~/Desktop/cons # unless your library already exists
 
 ** Usage
 *** Show library
@@ -59,7 +60,7 @@
     If you use rbrito's youtube-dl fork (use-other-downloaders branch) then you
     can use aria2c with 5 (up to 16) concurrent connections.
 *** Stumpwm interface
-    [[http://github.com/scottjad/cons-stumpwm]]
+    [[https://github.com/scottjad/dotfiles/blob/master/.stump/cons.lisp]]
 
 ** FAQ
 *** Why aren't you using xdg-open/gnome-open?
