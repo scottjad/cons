@@ -48,15 +48,19 @@ support_short_item_and_last_forms
 
 # support common short forms e.g. "cons rm 0"
 SHORTS = {
-  "rm" => "--rm",
-  "keep" => "--keep",
-  "next" => "--next",
-  "ls" => "--list"
+  "ls" => "--list",
+  "clean" => "--delete-consumed"
 }
 
-if SHORTS.keys.member? ARGV[0]
-  ARGV[0] = SHORTS[ARGV[0]]
-end
+FLAGS = ["next", "new", "filter", "dir", "now", "retry", "delete", "delete-matching", "url", "mv", "cp", "rm", "keep", "item", "list", "low", "queue", "sound", "delete-consumed"]
+
+ARGV.each_index {|index|
+  if SHORTS.keys.member? ARGV[index]
+    ARGV[index] = SHORTS[ARGV[index]]
+  elsif FLAGS.member? ARGV[index]
+    ARGV[index] = "--"+ARGV[index]
+  end
+}
 
 if /^http/ =~ ARGV[0]
   ARGV.unshift("--url")
