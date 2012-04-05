@@ -24,7 +24,7 @@
 *** Show library
     : cons
 *** Add item from url
-    : cons --url http://www.youtube.com/watch?v=1xVw6PsSinI
+    : cons http://www.youtube.com/watch?v=1xVw6PsSinI
 *** Play item 
     : cons 0
 *** Replay last item played

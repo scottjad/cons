@@ -58,6 +58,10 @@ if SHORTS.keys.member? ARGV[0]
   ARGV[0] = SHORTS[ARGV[0]]
 end
 
+if /^http/ =~ ARGV[0]
+  ARGV.unshift("--url")
+end
+
 # defaults
 OPTIONS = {}
 
