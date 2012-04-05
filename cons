@@ -1,0 +1,413 @@
+#!/usr/bin/env ruby
+# Cons
+# Author: Scott Jaderholm <email: my last name at gmail.com>
+# License: GPL V3
+# Created: 2011,2012
+
+# see README.org for instructions
+
+# replaces ~ with full path
+def realpath s
+  s.gsub /^~/, ENV["HOME"]
+end
+
+# settings
+RETRY_FILE = realpath "~/.cons_retry"
+RETRY_FILE_PROCESSING = RETRY_FILE + "_PROCESSING"
+LAST_FILE = realpath "~/.cons_last"
+LIST_CACHE = realpath "~/.cons_list"
+CONSUME_VERSION = "0.2.0"
+
+# load config
+require realpath "~/.cons_config"
+
+# md5 for naming downloading directories
+require 'digest/md5'
+def md5 s
+  Digest::MD5.hexdigest s
+end
+
+# for parsing options
+require 'optparse'
+
+def use_list_if_no_options
+  if ARGV == []
+    ARGV << "--list"
+  end
+end
+
+use_list_if_no_options
+
+# support short item form e.g. "cons 0"
+def support_short_item_and_last_forms
+  ARGV.unshift "--item" if Integer(ARGV[0]) rescue true
+  ARGV.unshift "--item" if ARGV[0] == "last"
+end
+
+support_short_item_and_last_forms
+
+# support common short forms e.g. "cons rm 0"
+SHORTS = {
+  "rm" => "--rm",
+  "keep" => "--keep",
+  "next" => "--next",
+  "ls" => "--list"
+}
+
+if SHORTS.keys.member? ARGV[0]
+  ARGV[0] = SHORTS[ARGV[0]]
+end
+
+# defaults
+OPTIONS = {}
+
+OptionParser.new do |opts|
+  opts.on("--next [S]", "Consume new next item") do OPTIONS[:next] = true end
+  opts.on("--new", "List only new items") do OPTIONS[:new] = true end
+  opts.on("--filter [S]", "Limit to filenames with string") do |v| OPTIONS[:filter] = v end
+  opts.on("--dir [dir]", "Store file in dir") do |v| OPTIONS[:dir] = v end
+  opts.on("--now", "Consume item now") do OPTIONS[:now] = true end
+  opts.on("--retry", "Retry failed downloads") do OPTIONS[:retry] = true end
+  opts.on("--delete", "Delete after consuming") do OPTIONS[:delete] = true end
+  opts.on("--delete-matching", "Delete matching filter") do OPTIONS[:delete_matching] = true end
+  opts.on("--url [URL]", "Download url") do |v| OPTIONS[:url] = v end
+  opts.on("--mv [FILE]", "Move file") do |v| OPTIONS[:move] = v end
+  opts.on("--cp [FILE]", "Copy file") do |v| OPTIONS[:copy] = v end
+  opts.on("--rm [ID]", "Remove file") do |v| OPTIONS[:remove] = v end
+  opts.on("--keep [ID]", "Keep file") do |v| OPTIONS[:keep] = v end
+  opts.on("--item [ID]", "Consume item") do |v| OPTIONS[:item] = v end
+  opts.on("--list", "List items") do OPTIONS[:list] = true end
+  opts.on("--low", "Low quality") do OPTIONS[:low] = true end
+  opts.on("--queue", "Add item to queue to download later") do OPTIONS[:queue] = true end
+  opts.on("--sound", "Extract sound") do OPTIONS[:sound] = true end
+  opts.on("--delete-consumed", "Delete consumed") do OPTIONS[:delete_consumed] = true end
+
+end.parse!
+
+def failure
+  ($?.to_i != 0)
+end
+
+def notify summary, message
+  `notify-send -h string:fgcolor:#3afdff -h string:bgcolor:#008b8b -i cons "#{summary}" "#{message}"`
+end
+
+def notify_download_result url, failed
+  if failed then
+    notify "download failed", url
+  else
+    notify "download successful", url
+  end
+end
+
+def retry_later url, dir
+  File.open(RETRY_FILE, "a") {|f| f.write(url+" "+dir+"\n")}
+end
+
+def download_youtube url, dir
+  quality = if OPTIONS[:low] then "--max-quality=18" else "" end
+# TODO -t #{quality} won't work for other downloaders (e.g. movgrab)
+  `cd #{dir}; #{YDL} -t #{quality} "#{url}" 1>&2`
+end
+
+def download url, dir
+  # mkdir in case it doesn't yet exist
+  `mkdir #{dir}`
+  
+  puts "downloading #{url}"
+  # create temp download dir
+  hash = (md5 url) + "_DOWNLOADING"
+  dir2 = dir + hash
+  `mkdir #{dir2}`
+  
+  if /youtube.com|youtu.be|vimeo|blip.tv/ =~ url
+    download_youtube url, dir2
+  else
+    `#{DOWNLOADER} #{dir2} "#{url}" 1>&2`
+  end
+  failed = failure
+  # if failure, append url to retry file
+  if failed then
+    retry_later url, dir
+    notify_download_result url, failed
+  else
+    # move file from temp download dir to real one
+    filename=`find -L #{dir2} -type f`.sub "\n", ""
+    notify_download_result filename, failed
+    newfilename=filename.sub hash+"/", ""
+    `mv "#{filename}" "#{newfilename}"`
+    `rmdir #{dir2}`
+    if OPTIONS[:sound]
+      sound_file = newfilename+".mp3"
+      `ffmpeg -i "#{newfilename}" -ac 2 -ab 196 -vn -y "#{sound_file}"`
+      `mv "#{sound_file}" "#{newfilename}"`
+    end
+    newfilename
+  end
+end
+
+# filter items matching string `filter`
+def filter_items items, filter
+  if filter
+    items.select {|item| item.include? filter}
+  else
+    items
+  end
+end
+
+# removes files in the process of downloading
+def filter_downloading_items items
+  results = items.split("\n").reject{|i| i.end_with? ".part"}
+  results = results.reject{|i| i.match "_DOWNLOADING"}
+  filter_items results, OPTIONS[:filter]
+end
+
+def list_items_command
+  `find -L #{LIBRARY_DIR} -type f | sort`
+end
+
+# update list of items cache of items and update cache
+def update_list_items_cache
+  results = filter_downloading_items list_items_command
+  if OPTIONS[:new]
+    results = filter_consumed results
+  end
+  File.open(LIST_CACHE, "w") {|f| f.write(results.join "\n")}
+  results
+end
+
+def list_items_cached
+  File.open(LIST_CACHE, "r") {|f| f.read.split "\n"}
+end
+
+def list_items_brief files
+  files.each_index{|i| files[i] = files[i].sub!(/.*\/cons\/(.*)/, '\1')}
+  files.reject{|i| i.end_with? ".part"}
+  files.each{|s| s.sub!("/","\t")}
+end
+
+def display_items items
+  items.each_index do |index|
+    item = items[index]
+    consumed = if consumed? item then "*" else " " end
+    keep = if keep? item then "!" else " " end
+    clean_item = item.sub("_CONSUMED", "").sub("_KEEP", "")
+    puts "#{index.to_s.ljust 3} #{consumed}#{keep}\t#{clean_item}"
+  end
+end
+
+def record_last path
+  path = if consumed? path then path else path+"_CONSUMED" end
+  File.open(LAST_FILE, "w") {|f| f.write path}
+end
+
+def read_last
+  File.open(LAST_FILE, "r") {|f| f.read}
+end
+
+def mark_consumed path
+  unless consumed? path
+    File.rename path, path+"_CONSUMED"
+    puts "Marking #{path} CONSUMED."
+  end
+end
+
+def mark_keep path
+  unless keep? path
+    File.rename path, path+"_KEEP"
+  end
+end
+
+def item_has_extension item, extensions
+  extensions.any? {|ext| item.include? ext }
+end
+
+def player item
+  if item_has_extension item, [".mp4", ".ogv", ".webm", ".mov", ".flv", ".m4a", ".m4v", ".avi"]
+    VIDEO_APP
+  elsif item_has_extension item, [".mp3"]
+    AUDIO_APP
+  elsif item_has_extension item, [".pdf"]
+    PDF_APP
+  else
+    OTHER_APP
+  end
+end
+
+def play_item path
+  cmd = player path
+  puts cmd
+  puts path
+  `#{cmd} "#{path}" 1>&2`
+  if failure then
+    record_last path
+    puts "ERROR playing #{path} failed"
+  else
+    mark_consumed path
+    record_last path
+  end
+end
+
+def remove_file file
+  `rm "#{file}"`
+end
+
+def move_file file, dir
+  `mv "#{file}" "#{dir}"`
+end
+
+def copy_file file, dir
+  `cp "#{file}" "#{dir}"`
+end
+
+def delete items
+  items.each {|path|
+    `rm "#{path}"`
+  }
+end
+
+def directory
+  (OPTIONS[:dir] or "misc") + "/"
+end
+
+def consumed? s
+  s.include? "_CONSUMED"
+end
+
+def keep? s
+  s.include? "_KEEP"
+end
+
+def filter_consumed results
+  results.select {|i| not consumed? i}
+end
+
+def new_items
+  filter_consumed update_list_items_cache
+end
+
+def play_new
+  next_item = new_items[0]
+  if next_item
+    play_item next_item
+  else
+    puts "No more new items"
+  end
+end
+
+def add_queue url, dir
+  retry_later url, dir
+end
+
+def handle_url
+  if OPTIONS[:queue]
+    add_queue OPTIONS[:url], LIBRARY_DIR+directory
+  else
+    last_download = download OPTIONS[:url], LIBRARY_DIR+directory
+  end
+end
+
+def handle_list
+  display_items list_items_brief update_list_items_cache
+end
+
+def handle_move
+  move_file OPTIONS[:move], LIBRARY_DIR+directory
+end
+
+def handle_copy
+  copy_file OPTIONS[:copy], LIBRARY_DIR+directory
+end
+
+def handle_remove
+  remove_file list_items_cached[OPTIONS[:remove].to_i]
+end
+
+def handle_keep
+  mark_keep list_items_cached[OPTIONS[:keep].to_i]
+end
+
+def handle_delete_matching
+  delete list_items_cached
+end
+
+def handle_delete_consumed
+  delete list_items_cached.select {|item| consumed?(item) && !keep?(item)}
+end
+
+def handle_now
+  play_item last_download
+  remove_file last_download if OPTIONS[:delete]
+end
+
+def handle_item
+  item = if OPTIONS[:item] == "last" then
+           read_last
+         else
+           list_items_cached[OPTIONS[:item].to_i]
+         end
+  play_item item
+  remove_file item if OPTIONS[:delete]
+end
+
+def handle_next
+  play_new
+end
+
+def handle_retry
+  File.rename(RETRY_FILE, RETRY_FILE_PROCESSING)
+  File.open(RETRY_FILE_PROCESSING,"r") { |f|
+    f.read.split("\n").each{|item|
+      url,dir = item.split(" ")
+      download url, dir
+    }
+  }
+  File.delete RETRY_FILE_PROCESSING
+end    
+
+def main
+  if OPTIONS[:url] then
+    handle_url
+    
+  elsif OPTIONS[:list] then
+    handle_list
+
+  elsif OPTIONS[:move] then
+    handle_move
+
+  elsif OPTIONS[:copy] then
+    handle_copy
+
+  elsif OPTIONS[:next] then
+    handle_next
+    
+  elsif OPTIONS[:remove] then
+    handle_remove
+
+  elsif OPTIONS[:keep] then
+    handle_keep
+end
+  
+  # TODO BUG ensure a --filter is included so you don't delete everything!
+  # if OPTIONS[:delete_matching] then
+  #   handle_delete_matching
+  # end
+  
+  if OPTIONS[:delete_consumed] then
+    handle_delete_consumed
+  end
+
+  if OPTIONS[:now] then
+    handle_now
+  end
+
+  if OPTIONS[:item] then
+    handle_item
+  end
+
+  if OPTIONS[:retry] then
+    handle_retry
+  end
+end
+
+main

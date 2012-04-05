@@ -1,0 +1,73 @@
+* Cons
+  makes consuming so fast and easy that one might consume too much
+
+** Overview
+   Cons is a command line media library primarily for consuming temporary
+   media. Like iTunes but for video, pdfs, and audio. It's not intended for
+   managing a permanent music/video library. Files can also be removed/added
+   through normal file management tools.
+
+** Dependencies
+   - Ruby
+   - youtube-dl (recommended if you want to download online video)
+   - aria2 (recommended not required)
+     
+** Install
+   : cd ~/src
+   : git clone https://github.com/scottjad/cons.git
+   : ln -s ~/src/cons/cons ~/bin/cons # or add to PATH
+   : cp ~/src/cons/config.default ~/.cons_config.rb
+   : $EDITOR ~/.cons_config.rb # setup your apps
+
+** Usage
+*** Show library
+    : cons
+*** Add item from url
+    : cons --url http://www.youtube.com/watch?v=1xVw6PsSinI
+*** Play item
+    cons 0
+*** Replay last item played
+    cons last
+*** Consume next new item whatever it happens to be
+    cons next --new
+*** Remove item
+    cons rm 0
+*** Remove all consumed non-sticky items
+    cons --delete-consumed
+*** Mark item for keepin'
+    cons keep 0
+*** Add item to queue for later
+    cons --queue --url 
+*** Retry failed/queued downloads
+    cons --retry
+*** Add item from file
+    cons --mv ~/video.mp4
+*** Increase playback speed
+    export CONS_PLAYBACK_SPEED=1.61
+** Notes
+*** id's persist
+    The id's listed will persist until you do another ls. So if you remove item
+    0, item 1 does not become item 0 until you do another ls.
+*** Shortcuts
+    cons (and cons ls) are shortcuts for the longer version cons --ls. Other
+    commands like cons 0 (cons --item 0), cons keep (cons --keep), and cons
+    next (cons --next) are shortcuts too. Most other commands don't have
+    shortcuts.
+    
+** Improvements
+*** Faster youtube downloads
+    If you use rbrito's youtube-dl fork (use-other-downloaders branch) then you
+    can use aria2c with 5 (up to 16) concurrent connections.
+*** Stumpwm interface
+    http://github.com/scottjad/cons-stumpwm
+
+** FAQ
+*** Why aren't you using xdg-open/gnome-open?
+    They return immediately so the file gets marked as consumed and renamed
+    sometimes before the program has a chance to read it.
+
+*** Why does your ruby suck?
+    This is the longest thing I've written in ruby. Improvement forks welcome.
+    
+** Authors
+   Scott Jaderholm < my first name at my last name dot com >
