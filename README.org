@@ -47,18 +47,23 @@
     : export CONS_PLAYBACK_SPEED=1.61
 
 ** Notes
-*** Read and keep flags
+*** Consumed and keep flags
     In the file listing there are flags to designate various states. "*" means
-    read and "!" mean keep (don't delete).
+    consumed and "!" means don't delete.
 *** Persistent ids
-    The id's listed will persist until you do another ls. So if you remove item
-    0, item 1 does not become item 0 until you do another ls.
+    The id's listed will persist until you do another listing. So if you remove item
+    0, item 1 does not become item 0 until you list the library again.
 *** Shortcuts
     Most cons commands that lack "--" are shortcuts for parameters that start
-    with --. For example, cons last is a shortcut for cons --last. A few
-    shortcuts only work as the first parameter, such as cons http://foo.com/bar
-    (shortcut for cons --url http://foo.com/bar) and cons 0 (shortcut for cons
-    --item 0)
+    with "--". For example, "cons last" is a shortcut for "cons --last". A few
+    shortcuts only work as the first parameter, such as "cons
+    http://foo.com/bar" ("cons --url http://foo.com/bar") and "cons 0" ("cons
+    --item 0")
+*** misc folder
+    By default items added to the library are placed under the misc folder. If
+    you would like to put them in a different folder when adding use the --dir
+    option, e.g. "cons --dir youtube --url
+    http://www.youtube.com/watch?v=T2xh9-UPSlU"
     
 ** Improvements
 *** Faster youtube downloads
