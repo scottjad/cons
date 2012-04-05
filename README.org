@@ -29,7 +29,7 @@
     : cons 0
 *** Replay last item played
     : cons last
-*** Consume next new item whatever it happens to be
+*** Consume next new item
     : cons next
 *** Remove item
     : cons rm 0
@@ -64,6 +64,9 @@
 *** Faster youtube downloads
     If you use rbrito's youtube-dl fork (use-other-downloaders branch) then you
     can use aria2c with 5 (up to 16) concurrent connections.
+*** Bookmark
+    : export cons=~/Desktop/cons
+    : cd $cons
 *** Stumpwm interface
     [[https://github.com/scottjad/dotfiles/blob/master/.stump/cons.lisp]]
 
