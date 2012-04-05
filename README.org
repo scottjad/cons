@@ -21,30 +21,19 @@
    : mkdir ~/Desktop/cons # unless your library already exists
 
 ** Usage
-*** Show library
-    : cons
-*** Add item from url
-    : cons http://www.youtube.com/watch?v=1xVw6PsSinI
-*** Play item 
-    : cons 0
-*** Replay last item played
-    : cons last
-*** Consume next new item
-    : cons next
-*** Remove item
-    : cons rm 0
-*** Remove all consumed non-sticky items
-    : cons clean
-*** Mark item for keepin'
-    : cons keep 0
-*** Add item to queue for later
-    : cons http://www.youtube.com/watch?v=0dx-7vwJJrc queue
-*** Retry failed/queued downloads
-    : cons retry
-*** Add item from file
-    : cons mv ~/video.mp4
-*** Increase playback speed
-    : export CONS_PLAYBACK_SPEED=1.61
+| Task                                 | Command                                |
+|--------------------------------------+----------------------------------------|
+| Show library                         | cons                                   |
+| Add item from url                    | cons http://youtu.be/1xVw6PsSinI       |
+| Play item                            | cons 0                                 |
+| Replay last item played              | cons last                              |
+| Consume next new item                | cons next                              |
+| Remove item                          | cons rm 0                              |
+| Remove all consumed non-sticky items | cons clean                             |
+| Mark item for keepin'                | cons keep 0                            |
+| Add item to queue for later          | cons http://youtu.be/0dx-7vwJJrc queue |
+| Retry failed/queued downloads        | cons retry                             |
+| Add item from file                   | cons mv ~/video.mp4                    |
 
 ** Notes
 *** Consumed and keep flags
@@ -66,6 +55,8 @@
     http://www.youtube.com/watch?v=T2xh9-UPSlU"
     
 ** Improvements
+*** Increase playback speed
+    : export CONS_PLAYBACK_SPEED=1.61
 *** Faster youtube downloads
     If you use rbrito's youtube-dl fork (use-other-downloaders branch) then you
     can use aria2c with 5 (up to 16) concurrent connections.
