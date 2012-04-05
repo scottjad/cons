@@ -66,9 +66,10 @@
     [[https://github.com/scottjad/dotfiles/blob/master/.stump/cons.lisp]]
 
 ** FAQ
-*** Why aren't you using xdg-open/gnome-open?
+*** Why aren't you using xdg-open/gnome-open for everything?
     They return immediately so the file gets marked as consumed and renamed
-    sometimes before the program has a chance to read it.
+    sometimes before the program has a chance to read it. I haven't come up
+    with a good solution yet so only use these as last resort.
 
 *** Why does your ruby suck?
     This is the longest thing I've written in ruby. Improvement forks welcome.
