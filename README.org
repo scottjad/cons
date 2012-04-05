@@ -9,7 +9,7 @@
 
 ** Dependencies
    - Ruby
-   - youtube-dl (recommended if you want to download on line video)
+   - [[https://github.com/rg3/youtube-dl/][youtube-dl]] (recommended if you want to download videos)
    - aria2 (recommended not required)
      
 ** Install
