@@ -46,7 +46,10 @@
 *** Increase playback speed
     : export CONS_PLAYBACK_SPEED=1.61
 ** Notes
-*** id's persist
+*** Read and keep flags
+    In the file listing there are flags to designate various states. "*" means
+    read and "!" mean keep (don't delete).
+*** Persistent ids
     The id's listed will persist until you do another ls. So if you remove item
     0, item 1 does not become item 0 until you do another ls.
 *** Shortcuts
