@@ -57,8 +57,8 @@
     Most cons commands that lack "--" are shortcuts for parameters that start
     with "--". For example, "cons last" is a shortcut for "cons --last". A few
     shortcuts only work as the first parameter, such as "cons
-    http://foo.com/bar" ("cons --url http://foo.com/bar") and "cons 0" ("cons
-    --item 0")
+    http://foo.com/bar" (shortcut for "cons --url http://foo.com/bar") and
+    "cons 0" (shortcut for "cons --item 0")
 *** misc folder
     By default items added to the library are placed under the misc folder. If
     you would like to put them in a different folder when adding use the --dir
