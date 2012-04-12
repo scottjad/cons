@@ -54,13 +54,13 @@ SHORTS = {
 
 FLAGS = ["next", "new", "filter", "dir", "now", "retry", "delete", "delete-matching", "url", "mv", "cp", "rm", "keep", "item", "list", "low", "queue", "sound", "delete-consumed"]
 
-ARGV.each_index {|index|
+ARGV.each_index do |index|
   if SHORTS.keys.member? ARGV[index]
     ARGV[index] = SHORTS[ARGV[index]]
   elsif FLAGS.member? ARGV[index]
     ARGV[index] = "--"+ARGV[index]
   end
-}
+end
 
 if /^http/ =~ ARGV[0]
   ARGV.unshift("--url")
@@ -169,8 +169,8 @@ end
 
 # removes files in the process of downloading
 def filter_downloading_items items
-  results = items.split("\n").reject{|i| i.end_with? ".part"}
-  results = results.reject{|i| i.match "_DOWNLOADING"}
+  results = items.split("\n").reject {|i| i.end_with? ".part"}
+  results = results.reject {|i| i.match "_DOWNLOADING"}
   filter_items results, OPTIONS[:filter]
 end
 
@@ -193,9 +193,9 @@ def list_items_cached
 end
 
 def list_items_brief files
-  files.each_index{|i| files[i] = files[i].sub!(/.*\/cons\/(.*)/, '\1')}
-  files.reject{|i| i.end_with? ".part"}
-  files.each{|s| s.sub!("/","\t")}
+  files.each_index {|i| files[i] = files[i].sub!(/.*\/cons\/(.*)/, '\1')}
+  files.reject {|i| i.end_with? ".part"}
+  files.each {|s| s.sub!("/","\t")}
 end
 
 def display_items items
@@ -273,9 +273,9 @@ def copy_file file, dir
 end
 
 def delete items
-  items.each {|path|
+  items.each do |path|
     `rm "#{path}"`
-  }
+  end
 end
 
 def directory
@@ -368,12 +368,12 @@ end
 
 def handle_retry
   File.rename(RETRY_FILE, RETRY_FILE_PROCESSING)
-  File.open(RETRY_FILE_PROCESSING,"r") { |f|
-    f.read.split("\n").each{|item|
+  File.open(RETRY_FILE_PROCESSING,"r") do |f|
+    f.read.split("\n").each do |item|
       url,dir = item.split(" ")
       download url, dir
-    }
-  }
+      end
+    end
   File.delete RETRY_FILE_PROCESSING
 end    
 
