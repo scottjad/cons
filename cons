@@ -315,7 +315,7 @@ def handle_url
   if OPTIONS[:queue]
     add_queue OPTIONS[:url], LIBRARY_DIR+directory
   else
-    last_download = download OPTIONS[:url], LIBRARY_DIR+directory
+    $last_download = download OPTIONS[:url], LIBRARY_DIR+directory
   end
 end
 
@@ -348,8 +348,8 @@ def handle_delete_consumed
 end
 
 def handle_now
-  play_item last_download
-  remove_file last_download if OPTIONS[:delete]
+  play_item $last_download
+  remove_file $last_download if OPTIONS[:delete]
 end
 
 def handle_item
@@ -423,3 +423,4 @@ end
 end
 
 main
+
