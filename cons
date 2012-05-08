@@ -171,7 +171,6 @@ end
 def filter_downloading_items items
   results = items.split("\n").reject {|i| i.end_with? ".part"}
   results = results.reject {|i| i.match "_DOWNLOADING"}
-  filter_items results, OPTIONS[:filter]
 end
 
 def list_items_command
@@ -181,6 +180,7 @@ end
 # update list of items cache of items and update cache
 def update_list_items_cache
   results = filter_downloading_items list_items_command
+  results = filter_items results, OPTIONS[:filter]
   if OPTIONS[:new]
     results = filter_consumed results
   end
@@ -234,12 +234,16 @@ def item_has_extension item, extensions
   extensions.any? {|ext| item.include? ext }
 end
 
+VIDEO_TYPES = [".mp4", ".ogv", ".webm", ".mov", ".flv", ".m4a", ".m4v", ".avi"]
+AUDIO_TYPES = [".mp3"]
+READ_TYPES = [".pdf"]
+
 def player item
-  if item_has_extension item, [".mp4", ".ogv", ".webm", ".mov", ".flv", ".m4a", ".m4v", ".avi"]
+  if item_has_extension item, VIDEO_TYPES
     VIDEO_APP
-  elsif item_has_extension item, [".mp3"]
+  elsif item_has_extension item, AUDIO_TYPES
     AUDIO_APP
-  elsif item_has_extension item, [".pdf"]
+  elsif item_has_extension item, READ_TYPES
     PDF_APP
   else
     OTHER_APP
@@ -375,7 +379,7 @@ def handle_retry
       end
     end
   File.delete RETRY_FILE_PROCESSING
-end    
+end
 
 def main
   if OPTIONS[:url] then
