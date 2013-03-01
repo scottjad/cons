@@ -16,7 +16,9 @@ RETRY_FILE = realpath "~/.cons_retry"
 RETRY_FILE_PROCESSING = RETRY_FILE + "_PROCESSING"
 LAST_FILE = realpath "~/.cons_last"
 LIST_CACHE = realpath "~/.cons_list"
+URLS_FILE = realpath "~/.cons_urls"
 CONSUME_VERSION = "0.2.0"
+
 
 # load config
 require realpath "~/.cons_config"
@@ -109,7 +111,19 @@ def notify_download_result url, failed
     notify "download failed", url
   else
     notify "download successful", short_filename(url)
+    record_url url
   end
+end
+
+require 'yaml'
+
+def record_url url
+  File.open(URLS_FILE, "a") {|f| f.write(url+"\n")}
+end
+
+def already_downloaded url
+  contents = File.open(URLS_FILE, "r") {|f| f.read}
+  contents.split.to_set.include? url
 end
 
 def retry_later url, dir
