@@ -134,6 +134,8 @@ def download url, dir
   
   if /youtube.com|youtu.be|vimeo|blip.tv/ =~ url
     download_youtube url, dir2
+  elsif /hulu.com/ =~ url
+    `get_flash_videos "#{url}"`
   else
     `#{DOWNLOADER} #{dir2} "#{url}" 1>&2`
   end
