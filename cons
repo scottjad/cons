@@ -234,7 +234,7 @@ def item_has_extension item, extensions
   extensions.any? {|ext| item.include? ext }
 end
 
-VIDEO_TYPES = [".mp4", ".ogv", ".webm", ".mov", ".flv", ".m4a", ".m4v", ".avi"]
+VIDEO_TYPES = [".mp4", ".ogv", ".webm", ".mov", ".flv", ".m4a", ".m4v", ".avi", ".mkv", ".video"]
 AUDIO_TYPES = [".mp3"]
 READ_TYPES = [".pdf"]
 
