@@ -102,8 +102,10 @@ def short_filename file
   file.match(/[^\/]*$/)[0]
 end
 
-def notify summary, message
-  `notify-send -h string:fgcolor:#3afdff -h string:bgcolor:#008b8b -i cons "#{summary}" "#{message}"`
+require 'shellwords'
+
+def notify(summary, message)
+  `notify-send -i cons "#{summary}" "#{Shellwords.shellescape(message)}"`
 end
 
 def notify_download_result url, failed
