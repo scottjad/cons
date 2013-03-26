@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# Cons
+# Cons: makes consuming media so fast and easy that one might consume too much
 # Author: Scott Jaderholm <email: my last name at gmail.com>
 # License: MIT/X11
 # Created: 2011,2012
@@ -17,8 +17,7 @@ RETRY_FILE_PROCESSING = RETRY_FILE + "_PROCESSING"
 LAST_FILE = realpath "~/.cons_last"
 LIST_CACHE = realpath "~/.cons_list"
 URLS_FILE = realpath "~/.cons_urls"
-CONSUME_VERSION = "0.2.0"
-
+CONSUME_VERSION = "0.3.0"
 
 # load config
 require realpath "~/.cons_config"
