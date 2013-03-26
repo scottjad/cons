@@ -23,6 +23,17 @@ CONSUME_VERSION = "0.2.0"
 # load config
 require realpath "~/.cons_config"
 
+# config defaults
+LIBRARY_DIR ||= realpath "~/Desktop/cons/"
+DOWNLOADER ||= "wget -c -P"
+YDL ||= "~/src/youtube-dl/youtube-dl -t -c --no-part"
+PLAYBACK_SPEED ||= (ENV["CONS_PLAYBACK_SPEED"] or "1.0")
+PDF_APP ||= "xdg-open"
+VIDEO_APP ||= "mplayer -speed #{PLAYBACK_SPEED}"
+AUDIO_APP ||= "mplayer -speed #{PLAYBACK_SPEED}"
+OTHER_APP ||= "xdg-open"
+UI_APP ||= "dmenu -l 30 -b -i -nf '#888888' -nb '#222222' -sf '#ffffff' -sb 'MediumPurple3'"
+
 # md5 for naming downloading directories
 require 'digest/md5'
 def md5 s
