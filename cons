@@ -51,13 +51,16 @@ end
 
 use_list_if_no_options
 
-# support short item form e.g. "cons 0"
-def support_short_item_and_last_forms
-  ARGV.unshift "--item" if Integer(ARGV[0]) rescue true
-  ARGV.unshift "--item" if ARGV[0] == "last"
+# support short item form e.g. "cons 0" or "cons -" or "cons last"
+def id? s
+  Integer(s) rescue false or s == "-" or s == "last"
 end
 
-support_short_item_and_last_forms
+def support_short_item_forms
+  ARGV.unshift "--item" if id?(ARGV[0]) rescue true
+end
+
+support_short_item_forms
 
 # support common short forms e.g. "cons rm 0"
 SHORTS = {
@@ -83,25 +86,33 @@ end
 OPTIONS = {}
 
 OptionParser.new do |opts|
-  opts.on("--next [S]", "Consume new next item") do OPTIONS[:next] = true end
-  opts.on("--new", "List only new items") do OPTIONS[:new] = true end
-  opts.on("--filter [S]", "Limit to filenames with string") do |v| OPTIONS[:filter] = v end
-  opts.on("--dir [dir]", "Store file in dir") do |v| OPTIONS[:dir] = v end
-  opts.on("--now", "Consume item now") do OPTIONS[:now] = true end
-  opts.on("--retry", "Retry failed downloads") do OPTIONS[:retry] = true end
+  opts.separator("")
+  opts.separator("Flags:")
+  opts.on("--cp=FILE", "Copy file") do |v| OPTIONS[:copy] = v end
   opts.on("--delete", "Delete after consuming") do OPTIONS[:delete] = true end
+  opts.on("--delete-consumed", "Delete consumed") do OPTIONS[:delete_consumed] = true end
   opts.on("--delete-matching", "Delete matching filter") do OPTIONS[:delete_matching] = true end
-  opts.on("--url [URL]", "Download url") do |v| OPTIONS[:url] = v end
-  opts.on("--mv [FILE]", "Move file") do |v| OPTIONS[:move] = v end
-  opts.on("--cp [FILE]", "Copy file") do |v| OPTIONS[:copy] = v end
-  opts.on("--rm [ID]", "Remove file") do |v| OPTIONS[:remove] = v end
-  opts.on("--keep [ID]", "Keep file") do |v| OPTIONS[:keep] = v end
-  opts.on("--item [ID]", "Consume item") do |v| OPTIONS[:item] = v end
+  opts.on("--dir=DIR", "Store file in dir") do |v| OPTIONS[:dir] = v end
+  opts.on("--filter=S", "Limit to filenames with string") do |v| OPTIONS[:filter] = v end
+  opts.on("--item=ID", "Consume item") do |v| OPTIONS[:item] = v end
+  opts.on("--keep=ID", "Keep file") do |v| OPTIONS[:keep] = v end
   opts.on("--list", "List items") do OPTIONS[:list] = true end
   opts.on("--low", "Low quality") do OPTIONS[:low] = true end
+  opts.on("--mv=FILE", "Move file") do |v| OPTIONS[:move] = v end
+  opts.on("--new", "List only new items") do OPTIONS[:new] = true end
+  opts.on("--next", "Consume next new item") do OPTIONS[:next] = true end
+  opts.on("--now", "Consume item now") do OPTIONS[:now] = true end
   opts.on("--queue", "Add item to queue to download later") do OPTIONS[:queue] = true end
+  opts.on("--retry", "Retry failed downloads") do OPTIONS[:retry] = true end
+  opts.on("--rm=ID", "Remove file") do |v| OPTIONS[:remove] = v end
   opts.on("--sound", "Extract sound") do OPTIONS[:sound] = true end
-  opts.on("--delete-consumed", "Delete consumed") do OPTIONS[:delete_consumed] = true end
+  opts.on("--url=URL", "Download url") do |v| OPTIONS[:url] = v end
+
+  opts.separator("")
+  opts.separator("Example usage:")
+  opts.separator("cons http://foo.com/bar.mp4 now")
+  opts.separator("cons 0")
+  opts.separator("cons rm 0")
 
 end.parse!
 
@@ -213,7 +224,10 @@ def update_list_items_cache
   if OPTIONS[:new]
     results = filter_consumed results
   end
-  File.open(LIST_CACHE, "w") {|f| f.write(results.join "\n")}
+  results_without_tags = results.map do |item|
+    file_remove_tags item
+  end
+  File.open(LIST_CACHE, "w") {|f| f.write(results_without_tags.join "\n")}
   results
 end
 
@@ -224,26 +238,43 @@ end
 def list_items_brief files
   files.each_index {|i| files[i] = files[i].sub!(/.*\/cons\/(.*)/, '\1')}
   files.reject {|i| i.end_with? ".part"}
-  files.each {|s| s.sub!("/","\t")}
+  files.each {|s| s.sub!("/"," ")}
 end
 
 def display_items items
+  result = ""
   items.each_index do |index|
     item = items[index]
     consumed = if consumed? item then "*" else " " end
     keep = if keep? item then "!" else " " end
     clean_item = item.sub("_CONSUMED", "").sub("_KEEP", "")
-    puts "#{index.to_s.ljust 3} #{consumed}#{keep}\t#{clean_item}"
+    result = result + "#{index.to_s.ljust 3} #{consumed}#{keep} #{clean_item}\n"
   end
+  result
 end
 
 def record_last path
-  path = if consumed? path then path else path+"_CONSUMED" end
-  File.open(LAST_FILE, "w") {|f| f.write path}
+  File.open(LAST_FILE, "w") {|f| f.write file_remove_tags path}
+end
+
+TAGS = ["_CONSUMED", "_KEEP"]
+
+def file_remove_tags s
+  TAGS.inject(s) do |s, tag|
+    s.gsub(tag, "")
+  end
 end
 
 def read_last
   File.open(LAST_FILE, "r") {|f| f.read}
+end
+
+def file_with_tags file_path
+  `ls #{file_path}*`.sub "\n", ""
+end
+
+def id_of_last_file_consumed
+  list_items_cached.index read_last
 end
 
 def mark_consumed path
@@ -353,7 +384,7 @@ def handle_url
 end
 
 def handle_list
-  display_items list_items_brief update_list_items_cache
+  puts display_items list_items_brief update_list_items_cache
 end
 
 def handle_move
@@ -364,12 +395,31 @@ def handle_copy
   copy_file OPTIONS[:copy], LIBRARY_DIR+directory
 end
 
+def get_id s
+  if s == "-"
+    select_item.to_i
+  elsif s == "last"
+    id = id_of_last_file_consumed
+    if id == nil
+      abort("Error: last file not found")
+    else
+      id
+    end
+  else
+    s.to_i
+  end
+end
+
+def get_current_file_by_id id
+  file_with_tags list_items_cached[get_id id]
+end
+
 def handle_remove
-  remove_file list_items_cached[OPTIONS[:remove].to_i]
+  remove_file get_current_file_by_id OPTIONS[:remove]
 end
 
 def handle_keep
-  mark_keep list_items_cached[OPTIONS[:keep].to_i]
+  mark_keep get_current_file_by_id OPTIONS[:keep]
 end
 
 def handle_delete_matching
@@ -377,7 +427,7 @@ def handle_delete_matching
 end
 
 def handle_delete_consumed
-  delete list_items_cached.select {|item| consumed?(item) && !keep?(item)}
+  delete list_items_cached.select {|item| consumed?(file_with_tags item) && !keep?(file_with_tags item)}
 end
 
 def handle_now
@@ -386,11 +436,7 @@ def handle_now
 end
 
 def handle_item
-  item = if OPTIONS[:item] == "last" then
-           read_last
-         else
-           list_items_cached[OPTIONS[:item].to_i]
-         end
+  item = get_current_file_by_id get_id OPTIONS[:item]
   play_item item
   remove_file item if OPTIONS[:delete]
 end
@@ -410,7 +456,21 @@ def handle_retry
   File.delete RETRY_FILE_PROCESSING
 end
 
+def select_item
+  input = display_items update_list_items_cache
+  item = `echo "#{input}" | #{UI_APP} | cut -d' ' -f1`.strip
+  if item == ""
+    puts ("Aborted: nothing selected in '#{UI_APP}'")
+    exit
+  elsif id? item
+    item
+  else
+    abort("Error: #{item} is not an id")
+  end
+end
+
 def main
+
   if OPTIONS[:url] then
     handle_url
     
@@ -431,7 +491,7 @@ def main
 
   elsif OPTIONS[:keep] then
     handle_keep
-end
+  end
   
   # TODO BUG ensure a --filter is included so you don't delete everything!
   # if OPTIONS[:delete_matching] then

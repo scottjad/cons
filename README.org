@@ -26,6 +26,7 @@
 | Show library                         | cons                                   |
 | Add item from url                    | cons http://youtu.be/1xVw6PsSinI       |
 | Play item                            | cons 0                                 |
+| Play item selected from dmenu        | cons -                                 |
 | Replay last item played              | cons last                              |
 | Consume next new item                | cons next                              |
 | Remove item                          | cons rm 0                              |
@@ -36,18 +37,28 @@
 | Add item from file                   | cons mv ~/video.mp4                    |
 
 ** Notes
+*** Selecting items with dmenu
+    If you use "-" as an id, such as "cons -" or "cons rm -", then cons
+    will prompt you for the item using dmenu.
 *** Consumed and keep flags
     In the file listing there are flags to designate various states. "*" means
     consumed and "!" means don't delete.
 *** Persistent ids
     The id's listed will persist until you do another listing. So if you remove item
     0, item 1 does not become item 0 until you list the library again.
-*** Shortcuts
-    Most cons commands that lack "--" are shortcuts for parameters that start
-    with "--". For example, "cons last" is a shortcut for "cons --last". A few
-    shortcuts only work as the first parameter, such as "cons
-    http://foo.com/bar" (shortcut for "cons --url http://foo.com/bar") and
-    "cons 0" (shortcut for "cons --item 0")
+*** Leave off the --
+    You can leave off the -- in options. For example, type "cons keep 0"
+    instead of "cons --keep 0".
+*** Special identifiers
+    "-" and "last" are special identifiers. Instead of an id, you can
+    use them to interactively choose a file with dmenu or use the last
+    item consumed, respectively. For example, "cons rm -" to choose a
+    file to delete, or "cons keep last" to mark the last item consumed
+    for keeping.
+*** Item shortcut
+    There are a few shortcuts that only work as the first parameter,
+    such as "cons http://foo.com/bar" (shortcut for "cons --url
+    http://foo.com/bar") and "cons 0" (shortcut for "cons --item 0")
 *** misc folder
     By default items added to the library are placed under the misc folder. If
     you would like to put them in a different folder when adding use the --dir
@@ -64,6 +75,7 @@
     : export cons=~/Desktop/cons
     : cd $cons
 *** Stumpwm interface
+    Deprecated: Use the integrated dmenu interface instead
     [[https://github.com/scottjad/dotfiles/blob/master/.stump/cons.lisp]]
 
 ** FAQ
