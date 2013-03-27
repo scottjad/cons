@@ -456,7 +456,7 @@ def handle_retry
 end
 
 def select_item
-  input = display_items update_list_items_cache
+  input = display_items list_items_brief update_list_items_cache
   item = `echo "#{input}" | #{UI_APP} | cut -d' ' -f1`.strip
   if item == ""
     puts ("Aborted: nothing selected in '#{UI_APP}'")
