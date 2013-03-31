@@ -269,7 +269,7 @@ def read_last
 end
 
 def file_with_tags file_path
-  `ls #{file_path}*`.sub "\n", ""
+  `ls "#{file_path}"*`.sub "\n", ""
 end
 
 def id_of_last_file_consumed
