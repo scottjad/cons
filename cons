@@ -324,6 +324,7 @@ def play_item path
 end
 
 def remove_file file
+  puts "removing #{file}"
   `rm "#{file}"`
 end
 
@@ -337,7 +338,7 @@ end
 
 def delete_files items
   items.each do |path|
-    `rm "#{path}"`
+    remove_file path
   end
 end
 
@@ -426,7 +427,7 @@ def handle_delete_matching
 end
 
 def handle_delete_consumed
-  delete_files list_items_cached.select {|item| consumed?(file_with_tags item) && !keep?(file_with_tags item)}.map {|item| file_with_tags item}
+  delete_files update_list_items_cache.select {|filename| consumed?(filename) && !keep?(filename)}
 end
 
 def handle_now
