@@ -313,7 +313,7 @@ def play_item path
   cmd = player path
   puts cmd
   puts path
-  `#{cmd} "#{path}" 1>&2`
+  `#{cmd} #{Shellwords.shellescape(path)} 1>&2`
   if failure then
     record_last path
     puts "ERROR playing #{path} failed"
