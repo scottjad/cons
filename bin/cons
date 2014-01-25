@@ -25,7 +25,7 @@ if (ARGV[0] == 'config')
       %q{# OTHER_APP="gnome-open"},
       %q{UI_APP="dmenu -l 30 -b -i -nf '#888888' -nb '#222222' -sf '#ffffff' -sb 'MediumPurple3'"}
     ].each do |line|
-      f.print line
+      f.puts line
     end
   end
 else
