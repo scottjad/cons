@@ -7,7 +7,10 @@
 # see README.org for instructions
 
 if (ARGV[0] == 'config')
-  unless File.exists? configfile = File.join(Dir.home, '.cons_config.rb')
+  if File.exists? configfile = File.join(Dir.home, '.cons_config.rb')
+    puts %Q{Your configuration file already exists: #{configfile}}
+  else
+    puts %Q{Creating configuration file: #{configfile}}
     File.new(configfile, 'w')
     File.open(configfile, 'w') do |f|
       [
@@ -26,16 +29,39 @@ if (ARGV[0] == 'config')
         f.puts line
       end
     end
+
+    if File.exists? configfile = File.join(Dir.home, '.cons_config.rb')
+      puts %Q{Success!  Configuration file created: #{configfile}}
+    else
+      puts %Q{Error!  Configuration file not created.}
+    end
   end
 
   desktopdir = File.join(Dir.home, 'Desktop')
-  p desktopdir
-  unless Dir.exists? desktopdir
+  if Dir.exists? desktopdir
+    puts %Q{Your desktop directory already exists: #{desktopdir}}
+  else
+    puts %Q{Creating desktop directory: #{desktopdir}}
     Dir.mkdir desktopdir
+
+    if Dir.exists? desktopdir
+      puts %Q{Success!  Desktop directory created: #{desktopdir}}
+    else
+      puts %Q{Error!  Desktop directory not created.}
+    end
   end
 
-  unless Dir.exists? librarydir = File.join(desktopdir, 'cons')
+  if Dir.exists? librarydir = File.join(desktopdir, 'cons')
+    puts %Q{Your library directory already exists: #{librarydir}}
+  else
+    puts %Q{Creating library directory: #{librarydir}}
     Dir.mkdir librarydir
+
+    if Dir.exists? librarydir
+      puts %Q{Success!  Library directory created: #{librarydir}}
+    else
+      puts %Q{Error!  Library directory not created.}
+    end
   end
 else
 
