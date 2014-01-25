@@ -6,6 +6,30 @@
 
 # see README.org for instructions
 
+if (ARGV[0] == 'config')
+  unless File.exists? (configfile = File.join(ENV['HOME'], '.cons_config.rb'))
+    File.new(configfile, 'w')
+  end
+
+  File.open(configfile, 'w') do |f|
+    [
+      %q{LIBRARY_DIR = (ENV["CONS_LIBRARY_DIR"] or realpath "~/Desktop/cons/"},
+      %q{DOWNLOADER = "wget -c -P"},
+      %q{# DOWNLOADER = "aria2c -c -d"},
+      %q{YDL = "~/src/youtube-dl/youtube-dl -t -c --no-part"},
+      %q{PLAYBACK_SPEED = (ENV["CONS_PLAYBACK_SPEED"] or "1.0")},
+      %q{PDF_APP="xdg-open"},
+      %q{VIDEO_APP="mplayer -speed #{PLAYBACK_SPEED}"},
+      %q{AUDIO_APP="mplayer -speed #{PLAYBACK_SPEED}"},
+      %q{OTHER_APP="xdg-open"},
+      %q{# OTHER_APP="gnome-open"},
+      %q{UI_APP="dmenu -l 30 -b -i -nf '#888888' -nb '#222222' -sf '#ffffff' -sb 'MediumPurple3'"}
+    ].each do |line|
+      f.print line
+    end
+  end
+else
+
 # replaces ~ with full path
 def realpath s
   s.gsub /^~/, ENV["HOME"]
@@ -517,3 +541,4 @@ end
 
 main
 
+end
