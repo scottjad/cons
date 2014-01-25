@@ -169,7 +169,7 @@ def download url, dir
   dir2 = dir + hash
   `mkdir #{dir2}`
   
-  if /youtube.com|youtu.be|vimeo|blip.tv/ =~ url
+  if /youtube.com|youtu.be|vimeo|blip.tv|ytsearch|soundcloud/ =~ url
     download_youtube url, dir2
   elsif /hulu.com/ =~ url
     `get_flash_videos "#{url}"`
