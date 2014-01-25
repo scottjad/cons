@@ -23,7 +23,7 @@ CONSUME_VERSION = "0.3.0"
 require realpath "~/.cons_config"
 
 # config defaults
-LIBRARY_DIR ||= realpath "~/Desktop/cons/"
+LIBRARY_DIR ||= (ENV["CONS_LIBRARY_DIR"] or realpath "~/Desktop/cons/")
 DOWNLOADER ||= "wget -c -P"
 YDL ||= "~/src/youtube-dl/youtube-dl -t -c --no-part"
 PLAYBACK_SPEED ||= (ENV["CONS_PLAYBACK_SPEED"] or "1.0")

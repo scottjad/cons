@@ -1,4 +1,4 @@
-LIBRARY_DIR = realpath "~/Desktop/cons/"
+LIBRARY_DIR = (ENV["CONS_LIBRARY_DIR"] or realpath "~/Desktop/cons/"
 DOWNLOADER = "wget -c -P"
 # DOWNLOADER = "aria2c -c -d"
 YDL = "~/src/youtube-dl/youtube-dl -t -c --no-part"
