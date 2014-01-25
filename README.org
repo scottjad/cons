@@ -13,13 +13,6 @@
    - aria2 (recommended not required)
      
 ** Install
-   : cd ~/src
-   : git clone https://github.com/scottjad/cons.git
-   : ln -s ~/src/cons/cons ~/bin/cons # or add to PATH
-   : cp ~/src/cons/config.default ~/.cons_config.rb
-   : $EDITOR ~/.cons_config.rb # setup your apps
-   : mkdir ~/Desktop/cons # unless your library already exists
-   : -----------------------------------------
    : $ cd ~/src
    : $ git clone https://github.com/scottjad/cons.git
    : $ cd cons
@@ -28,8 +21,7 @@
    : # gem install cons-<version>
    : # exit
    : $ cons config
-   : $ $EDITOR ~/.cons_donfig.rb # set up your apps
-   : $ mkdir ~/Desktop/cons # unless your library already exists
+   : $ $EDITOR ~/.cons_config.rb # set up your apps
 
 ** Usage
 | Task                                 | Command                                |
