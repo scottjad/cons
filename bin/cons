@@ -76,7 +76,7 @@ RETRY_FILE_PROCESSING = RETRY_FILE + "_PROCESSING"
 LAST_FILE = realpath "~/.cons_last"
 LIST_CACHE = realpath "~/.cons_list"
 URLS_FILE = realpath "~/.cons_urls"
-CONSUME_VERSION = "0.3.1"
+CONSUME_VERSION = "0.3.2"
 
 # load config
 require realpath "~/.cons_config"

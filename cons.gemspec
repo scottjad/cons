@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name            =  'cons'
-  s.version         =  0.1
+  s.version         =  0.3.2
   s.authors         =  ['Scott Jaderholm', 'Chad Perrin']
   s.date            =  '2014-01-25'
   s.description     =  <<-EOF
