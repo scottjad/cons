@@ -6,6 +6,65 @@
 
 # see README.org for instructions
 
+if (ARGV[0] == 'config')
+  if File.exists? configfile = File.join(Dir.home, '.cons_config.rb')
+    puts %Q{Your configuration file already exists: #{configfile}}
+  else
+    puts %Q{Creating configuration file: #{configfile}}
+    File.new(configfile, 'w')
+    File.open(configfile, 'w') do |f|
+      [
+        %q{LIBRARY_DIR = (ENV["CONS_LIBRARY_DIR"] or realpath "~/Desktop/cons/"},
+        %q{DOWNLOADER = "wget -c -P"},
+        %q{# DOWNLOADER = "aria2c -c -d"},
+        %q{YDL = "~/src/youtube-dl/youtube-dl -t -c --no-part"},
+        %q{PLAYBACK_SPEED = (ENV["CONS_PLAYBACK_SPEED"] or "1.0")},
+        %q{PDF_APP="xdg-open"},
+        %q{VIDEO_APP="mplayer -speed #{PLAYBACK_SPEED}"},
+        %q{AUDIO_APP="mplayer -speed #{PLAYBACK_SPEED}"},
+        %q{OTHER_APP="xdg-open"},
+        %q{# OTHER_APP="gnome-open"},
+        %q{UI_APP="dmenu -l 30 -b -i -nf '#888888' -nb '#222222' -sf '#ffffff' -sb 'MediumPurple3'"}
+      ].each do |line|
+        f.puts line
+      end
+    end
+
+    if File.exists? configfile = File.join(Dir.home, '.cons_config.rb')
+      puts %Q{Success!  Configuration file created: #{configfile}}
+    else
+      puts %Q{Error!  Configuration file not created.}
+    end
+  end
+
+  desktopdir = File.join(Dir.home, 'Desktop')
+  if Dir.exists? desktopdir
+    puts %Q{Your desktop directory already exists: #{desktopdir}}
+  else
+    puts %Q{Creating desktop directory: #{desktopdir}}
+    Dir.mkdir desktopdir
+
+    if Dir.exists? desktopdir
+      puts %Q{Success!  Desktop directory created: #{desktopdir}}
+    else
+      puts %Q{Error!  Desktop directory not created.}
+    end
+  end
+
+  if Dir.exists? librarydir = File.join(desktopdir, 'cons')
+    puts %Q{Your library directory already exists: #{librarydir}}
+  else
+    puts %Q{Creating library directory: #{librarydir}}
+    Dir.mkdir librarydir
+
+    if Dir.exists? librarydir
+      puts %Q{Success!  Library directory created: #{librarydir}}
+    else
+      puts %Q{Error!  Library directory not created.}
+    end
+  end
+else
+
 # replaces ~ with full path
 def realpath s
   s.gsub /^~/, ENV["HOME"]
@@ -17,7 +76,7 @@ RETRY_FILE_PROCESSING = RETRY_FILE + "_PROCESSING"
 LAST_FILE = realpath "~/.cons_last"
 LIST_CACHE = realpath "~/.cons_list"
 URLS_FILE = realpath "~/.cons_urls"
-CONSUME_VERSION = "0.3.1"
+CONSUME_VERSION = "0.3.2"
 
 # load config
 require realpath "~/.cons_config"
@@ -517,3 +576,4 @@ end
 
 main
 
+end
